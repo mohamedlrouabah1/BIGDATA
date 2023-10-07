@@ -2,10 +2,13 @@
 nltk
 # ML functions
 scikit-learn
-# to use data frames
+# data structures
+numpy
 pandas
 # plot libraries
 seasborn
 matplotlib
 # progress bar
 tqdm
+# for word embedding
+gensim
