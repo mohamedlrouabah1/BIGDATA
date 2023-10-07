@@ -5,7 +5,7 @@ from nltk import WordNetLemmatizer
 from nltk.corpus import reuters
 from nltk.stem import PorterStemmer
 import string
-import panda as pd
+import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 nltk.download('reuters')
@@ -36,6 +36,11 @@ def add_to_vocabulary(word):
     return word
 
 # preproces the data
+# Explanations zip(*... :
+# we build an array containning : [[doc1, cat1, id1], [doc2, cat2, id2], ...]
+# so in order to unpack this into variables doc, cat, id, need to concat the columns of each row
+# Thus we first unpack the array using * to obtain n arrays : [doc1, cat1, id1], [doc2, cat2, id2], ...
+# and then we use zip to concatenate thos arrays into one array : [[doc1,doc2], [cat1,cat2], [id1,id2], ...]
 train_doc, train_categories, train_ids = zip(*[
     [
     ' '.join([
