@@ -1,0 +1,5 @@
+.vscode
+
+**/__pycache__/
+# stopwords list downloaded by nltk
+**/english/
