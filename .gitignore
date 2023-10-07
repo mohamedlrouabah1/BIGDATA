@@ -3,3 +3,6 @@
 **/__pycache__/
 # stopwords list downloaded by nltk
 **/english/
+
+## subjects
+**/*.pdf

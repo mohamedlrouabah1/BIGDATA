@@ -5,6 +5,7 @@ from nltk import WordNetLemmatizer
 from nltk.corpus import reuters
 from nltk.stem import PorterStemmer
 import string
+import panda as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 nltk.download('reuters')
@@ -23,18 +24,30 @@ stemmer = PorterStemmer()
 #     raw_data = reuters.raw(doc)
 #     print(f"Document {doc}:\n{raw_data[:100]}...\n\n")
 
+# build the vocabulary of the collection, needed to make the document term-matrix
+vocabulary = set()
+
+def add_to_vocabulary(word):
+    """
+    Adds a word to the vocabulary if it is not already in it.
+    Returns the word in order to be used in a functional programming style.
+    """
+    vocabulary.add(word)
+    return word
+
 # preproces the data
 train_doc, train_categories, train_ids = zip(*[
     [
     ' '.join([
-        stemmer.stem(lemmatizer.lemmatize(w))
+        add_to_vocabulary(stemmer.stem(lemmatizer.lemmatize(w)))
         for w in word_tokenize(reuters.raw(doc_id).lower())
         if not w in stopwordsPunctuation
         ]),
      reuters.categories(doc_id),
      doc_id
     ] 
-    for doc_id in reuters.fileids() if doc_id.startswith("train")
+    for doc_id in reuters.fileids() 
+    if doc_id.startswith("train")
 ])
 
 # display the first document to see the result
@@ -44,11 +57,9 @@ print(train_categories[0])
 print(train_ids[0])
 
 def document_term_matrix(preprocessed_corpus):
-    vectorizer = TfidfVectorizer()
-    return vectorizer.fit_transform(preprocessed_corpus), vectorizer
+    M = {}
 
-docuemnt_term_matrix, vectorizer = document_term_matrix(train_doc)
+    # for 
 
-print(docuemnt_term_matrix.shape)
-print(docuemnt_term_matrix[0])
-print(vectorizer.get_feature_names_out()[0:10])
+    for doc in preprocessed_corpus:
+        for token in doc.split():
