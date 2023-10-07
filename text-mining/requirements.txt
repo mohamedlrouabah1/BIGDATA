@@ -1,3 +1,11 @@
+# nlp function for preprocesing
 nltk
+# ML functions
 scikit-learn
+# to use data frames
 pandas
+# plot libraries
+seasborn
+matplotlib
+# progress bar
+tqdm

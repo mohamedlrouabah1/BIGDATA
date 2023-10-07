@@ -1,16 +1,36 @@
 import nltk
 from nltk.corpus import stopwords
+from nltk.corpus import reuters
 from nltk.tokenize import word_tokenize
 from nltk import WordNetLemmatizer
-from nltk.corpus import reuters
 from nltk.stem import PorterStemmer
 import string
 import pandas as pd
+from tqdm import tqdm
+from time import perf_counter_ns
+from time_utility import print_time
+from collections import Counter
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-nltk.download('reuters')
-nltk.download('stopwords', 'english')
-nltk.download('wordnet')
+def download_nltk_dependency(dependency_name) -> None:
+    """
+    Download an NLTK dependency if it's not already available.
+
+    Args:
+        dependency_name (str): The name of the NLTK dependency to download.
+        language (str): Optional. Specify the language for certain dependencies.
+
+    Returns:
+        None
+    """
+    dependency_identifier = f'{dependency_name}.zip'
+
+    if not nltk.data.find(f'corpora/{dependency_identifier}'):
+        print(f"Downloading {dependency_name} from nltk.")
+        nltk.download(dependency_name)
+
+nltk_deps = [ 'reuters', 'stopwords', 'wordnet' ]
+map(download_nltk_dependency, nltk_deps)
 
 # initiates global variabels
 documents = reuters.fileids()
@@ -27,13 +47,18 @@ stemmer = PorterStemmer()
 # build the vocabulary of the collection, needed to make the document term-matrix
 vocabulary = set()
 
-def add_to_vocabulary(word):
+def add_to_vocabulary(term):
     """
     Adds a word to the vocabulary if it is not already in it.
     Returns the word in order to be used in a functional programming style.
     """
-    vocabulary.add(word)
-    return word
+    vocabulary.add(term)
+    return term
+    #or this to get rid of numbers, like prices in the text ? size 34824 against 35698
+    # if not term.isdigit():
+    #     vocabulary.add(term)
+    #     return term
+    # return ""
 
 # preproces the data
 # Explanations zip(*... :
@@ -57,18 +82,51 @@ train_doc, train_categories, train_ids = zip(*[
 
 # display the first document to see the result
 print(f"Number of training documents: {len(train_doc)}")
-print(train_doc[0])
-print(train_categories[0])
-print(train_ids[0])
+print(f"doc sample {train_doc[0][:100]}")
+print(f"doc category {train_categories[0]}")
+print(f"doc id {train_ids[0]}")
 
-print(f"Vocabulary of the collection {vocabulary}")
+print(f"Vocabulary size of the collection: {len(vocabulary)}")
 
 
-def document_term_matrix(preprocessed_corpus):
-    M = {}
+def create_document_term_matrix(preprocessed_corpus, doc_ids, vocabulary) -> (pd.DataFrame, int):
+    """
+    Create the document-term matrix of the preprocessed corpus.
+    columns are the terms of the vocabulary and
+    rows are the documents id of the corpus.
+    """
+    start_time = perf_counter_ns()
+    dtm = pd.DataFrame(0, index=train_ids, columns=vocabulary)
 
-    # for 
+    for doc, id in tqdm(zip(preprocessed_corpus, doc_ids), total=len(doc_ids), desc="Creating document-term matrix"):
+        term_counts = Counter(doc.split())
+        for term, count in term_counts.items():
+            dtm.at[id, term] = count
 
-    for doc in preprocessed_corpus:
-        for token in doc.split():
-            pass
+    computation_time = perf_counter_ns() - start_time
+
+    return dtm, computation_time
+
+def create_document_term_matrix_with_scikitlearn(preprocessed_corpus, doc_ids, vocabulary) -> (pd.DataFrame, int):
+    """
+    Create the document-term matrix of the preprocessed corpus.
+    columns are the terms of the vocabulary and
+    rows are the documents id of the corpus.
+    """
+    start_time = perf_counter_ns()
+    vectorizer = TfidfVectorizer()
+    dtm = vectorizer.fit_transform(preprocessed_corpus)
+
+    computation_time = perf_counter_ns() - start_time
+
+    return dtm, computation_time
+
+doc_term_matrix, time = create_document_term_matrix(train_doc, train_ids, list(vocabulary))
+
+print(f"Computation time: {time} ns.")
+print_time(time)
+
+doc_term_matrix, time = create_document_term_matrix_with_scikitlearn(train_doc, train_ids, list(vocabulary))
+
+print(f"Computation time: {time} ns.")
+print_time(time)
