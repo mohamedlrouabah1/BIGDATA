@@ -56,6 +56,9 @@ print(train_doc[0])
 print(train_categories[0])
 print(train_ids[0])
 
+print(f"Vocabulary of the collection {vocabulary}")
+
+
 def document_term_matrix(preprocessed_corpus):
     M = {}
 
@@ -63,3 +66,4 @@ def document_term_matrix(preprocessed_corpus):
 
     for doc in preprocessed_corpus:
         for token in doc.split():
+            pass

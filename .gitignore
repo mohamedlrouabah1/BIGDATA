@@ -4,5 +4,8 @@
 # stopwords list downloaded by nltk
 **/english/
 
-## subjects
+# subjects
 **/*.pdf
+
+# venv foders
+**/myvenv/
