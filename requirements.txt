@@ -1,0 +1,7 @@
+community
+matplotlib
+networkx
+numpy
+pandas
+tqdm
+teneto
